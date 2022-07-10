@@ -13,9 +13,9 @@ func CheckError(err error) {
 
 func CheckFatal(err error) {
 	if err != nil {
-		Logger.Error(err.Error())
+		Logger.Fatal(err.Error())
+		os.Exit(201)
 	}
-	os.Exit(201)
 }
 
 func CheckFmt(err error) {

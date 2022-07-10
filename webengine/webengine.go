@@ -1,7 +1,10 @@
 package webengine
 
 import (
+	"database/sql"
+	. "github.com/Unknwon/goconfig"
 	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"os"
@@ -16,9 +19,14 @@ var Logger *log.Logger
 var GinInstance *gin.Engine
 
 func init() {
-	// Logger Init
+	//日志初始化
 	loggerInit()
+	//配置文件初始化
+	configInit()
+	//web模块初始化
 	ginInit()
+	//数据库初始化
+	dbInit()
 }
 
 func loggerInit() {
@@ -49,6 +57,25 @@ func loggerInit() {
 	Logger.SetOutput(writer)
 }
 
+func configInit() {
+	c = make(map[string]map[string]string)
+	con, err := LoadConfigFile(configPath)
+	if err != nil {
+		Logger.Panic("无法打开配置文件：", configPath)
+		panic("无法打开配置文件")
+	}
+
+	sectionList := con.GetSectionList()
+	for i := range sectionList {
+		c[sectionList[i]] = make(map[string]string)
+		keyList := con.GetKeyList(sectionList[i])
+		for j := range keyList {
+			c[sectionList[i]][keyList[j]], _ = con.GetValue(sectionList[i], keyList[j])
+			Logger.Info(sectionList[i], "/", keyList[j], "=", c[sectionList[i]][keyList[j]])
+		}
+	}
+}
+
 func ginInit() {
 	//gin.SetMode(gin.ReleaseMode)
 	GinInstance = gin.New()
@@ -61,7 +88,17 @@ func ginInit() {
 }
 
 func dbInit() {
-
+	dbInfo := GetDBInfoString()
+	db, err := sql.Open("mysql", dbInfo)
+	if err != nil {
+		Logger.Fatal("连接数据库错误:", err.Error())
+	} else {
+		Logger.Info("数据库连接成功")
+	}
+	db.SetMaxOpenConns(2000)
+	db.SetMaxIdleConns(1000)
+	err = db.Ping()
+	CheckFatal(err)
 }
 
 func logger() gin.HandlerFunc {
