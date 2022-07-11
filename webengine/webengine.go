@@ -18,7 +18,7 @@ var Logger *log.Logger
 
 var GinInstance *gin.Engine
 
-var db *sql.DB
+var dbPool *sql.DB
 
 func init() {
 	//日志初始化
@@ -91,15 +91,16 @@ func ginInit() {
 
 func dbInit() {
 	dbInfo := GetDBInfoString()
-	db, err := sql.Open("mysql", dbInfo)
+	var err error
+	dbPool, err = sql.Open("mysql", dbInfo)
 	if err != nil {
 		Logger.Fatal("连接数据库错误:", err.Error())
 	} else {
 		Logger.Info("数据库连接成功")
 	}
-	db.SetMaxOpenConns(2000)
-	db.SetMaxIdleConns(1000)
-	err = db.Ping()
+	dbPool.SetMaxOpenConns(2000)
+	dbPool.SetMaxIdleConns(1000)
+	err = dbPool.Ping()
 	CheckFatal(err)
 }
 
