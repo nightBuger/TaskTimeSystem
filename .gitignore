@@ -1,3 +1,5 @@
 .idea
 config.ini
 goserver.log
+go.mod
+go.sum
