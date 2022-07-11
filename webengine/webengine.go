@@ -18,6 +18,8 @@ var Logger *log.Logger
 
 var GinInstance *gin.Engine
 
+var db *sql.DB
+
 func init() {
 	//日志初始化
 	loggerInit()
