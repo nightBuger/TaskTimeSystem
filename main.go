@@ -1,7 +1,6 @@
 package main
 
 import (
-	"TaskTimeSystem/service"
 	_ "TaskTimeSystem/service"
 	. "TaskTimeSystem/webengine"
 	"fmt"
@@ -9,7 +8,9 @@ import (
 
 func main() {
 	fmt.Println("gogogo")
-	var u service.UserInfoGetRes
-	Query("select * from t_userb", &u)
+	//var u service.UserInfoGetRes
+	//Query("select userid,username,guid,secretlevel,email,lxdh from t_userb", &u)
+	//Query("select * from t_userb", &u)
+
 	GinInstance.Run()
 }

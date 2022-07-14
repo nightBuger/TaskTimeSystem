@@ -16,10 +16,9 @@ func GetUserInfo(c *gin.Context) {
 		webengine.JSONBadRequest(c, err)
 		return
 	}
-	var res UserInfoGetRes
-	res.Id = json.Id
-	res.Name = "原野"
-	res.Level = 3
-	res.Phonenum = "13301346616"
-	webengine.JSONOK(c, res)
+	var base SqlResult
+	var res []UserInfoGetRes
+	base.ResultSlice = &res
+
+	webengine.JSONOK(c, base)
 }
