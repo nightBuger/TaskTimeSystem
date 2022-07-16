@@ -30,15 +30,21 @@ func CheckFmt(err error) {
 func trivalStructField(columns []string, structInfo reflect.Value) (correspond map[int]int) {
 	correspond = make(map[int]int, 0)
 loop:
-	for i := 0; i < structInfo.NumField(); i++ {
-		for j, column := range columns {
-			if column == structInfo.Type().Field(i).Tag.Get("sql") {
-				correspond[i] = j
+	for structIndex := 0; structIndex < structInfo.NumField(); structIndex++ {
+		for columnIndex, column := range columns {
+			if column == structInfo.Type().Field(structIndex).Tag.Get("sql") {
+				correspond[structIndex] = columnIndex
 				continue loop
 			}
 		}
 	}
 	return
+}
+
+func bindInterfaceSlice(interfacePtr *[]interface{}, structInfo reflect.Value, corresopnd map[int]int) {
+	for structIndex, columnIndex := range corresopnd {
+		(*interfacePtr)[columnIndex] = structInfo.Elem().Field(structIndex).Addr().Interface()
+	}
 }
 
 func getStructPtr(structInfoPtr reflect.Value) (reflect.Value, error) {
@@ -54,4 +60,8 @@ func getStructPtr(structInfoPtr reflect.Value) (reflect.Value, error) {
 	}
 
 	return structInfo, nil
+}
+
+func mustBeStruct(value reflect.Value) bool {
+	return value.Kind() == reflect.Struct
 }

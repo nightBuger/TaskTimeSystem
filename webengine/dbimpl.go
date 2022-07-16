@@ -1,64 +1,86 @@
 package webengine
 
 import (
-	"errors"
 	"reflect"
 )
 
-func QueryRow(sqlstr string, res interface{}) (err error) {
-	//检查是否为指针
-	ptr := reflect.ValueOf(res)
-	if ptr.Kind() != reflect.Ptr {
-		Logger.Error("sqlstr:[", sqlstr, "]的传入res类型不正确,传入的res的类型为:", ptr.Kind(), ",实际上应当为指针类型")
-		err = errors.New("res应当为指针类型")
+func QueryRow(sqlstr string, res interface{}) (result *SqlResult, err error) {
+	//检查是否为结构体
+	value := reflect.ValueOf(res)
+	if !mustBeStruct(value) {
 		return
 	}
-	//检查是否为结构体指针
-	field := ptr.Elem()
-	if field.Kind() != reflect.Struct {
-		Logger.Error("sqlstr:[", sqlstr, "]的传入res类型不正确,传入的res的类型为:", ptr.Kind(), ",实际上应当为结构体指针")
-		err = errors.New("res应当为结构体指针")
-		return
-	}
-	result, err := dbPool.Query(sqlstr)
+	//执行sql
+	row, err := dbPool.Query(sqlstr)
+	defer row.Close()
 	if err != nil {
-		Logger.Error("查询sql失败", err.Error())
+		Logger.Error("Query失败:", err.Error())
 		return
 	}
-	columns, err := result.Columns()
+	columns, err := row.Columns()
 	if err != nil {
-		Logger.Error("查询sql结果集的列的数量失败", err.Error())
-		return
-	}
-	if err != nil {
-		Logger.Error("查询sql结果集的列的类型失败", err.Error())
+		Logger.Error("查询sql结果集的列的信息失败:", err.Error())
 		return
 	}
 	scanArgs := make([]interface{}, len(columns))
-	//vauleArgs := make([]string, len(columns))
-	//
-	//for i, _ := range scanArgs {
-	//	var inter interface{}
-	//	scanArgs[i] = &inter
-	//}
-loop:
-	for i, dbField := range columns {
-		for j := 0; j < field.NumField(); j++ {
-			if field.Type().Field(j).Tag.Get("sqlstr") == dbField {
-				scanArgs[i] = field.Field(j).Addr().Interface()
-				continue loop
-			}
-		}
+	for i, _ := range scanArgs {
 		var inter interface{}
 		scanArgs[i] = &inter
 	}
 
-	for result.Next() {
-		result.Scan(scanArgs...)
-		//for _, arg := range scanArgs {
-		//	fmt.Println((*arg.(*string)))
-		//}
+	result = new(SqlResult)
+
+	//构造一个临时对象
+	correspond := trivalStructField(columns, value)
+	resultValue := reflect.New(reflect.TypeOf(res))
+	bindInterfaceSlice(&scanArgs, resultValue, correspond)
+
+	for row.Next() {
+		result.RowCount++
+		row.Scan(scanArgs...)
+		result.ResultSlice = resultValue.Elem().Interface()
 		break
 	}
+	return
+}
+
+func Query(sqlstr string, res interface{}) (result *SqlResult, err error) {
+	//检查是否为结构体
+	value := reflect.ValueOf(res)
+	if !mustBeStruct(value) {
+		return
+	}
+	//执行sql
+	row, err := dbPool.Query(sqlstr)
+	defer row.Close()
+	if err != nil {
+		Logger.Error("Query失败:", err.Error())
+		return
+	}
+	columns, err := row.Columns()
+	if err != nil {
+		Logger.Error("查询sql结果集的列的信息失败:", err.Error())
+		return
+	}
+	scanArgs := make([]interface{}, len(columns))
+	for i, _ := range scanArgs {
+		var inter interface{}
+		scanArgs[i] = &inter
+	}
+
+	result = new(SqlResult)
+
+	//构造一个临时对象
+	correspond := trivalStructField(columns, value)
+	resultValue := reflect.New(reflect.TypeOf(res))
+	bindInterfaceSlice(&scanArgs, resultValue, correspond)
+	tmpSliceValue := reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(res)), 0, 0)
+
+	for row.Next() {
+		row.Scan(scanArgs...)
+		tmpSliceValue = reflect.Append(tmpSliceValue, resultValue.Elem())
+		result.RowCount++
+	}
+	result.ResultSlice = tmpSliceValue.Interface()
 	return
 }

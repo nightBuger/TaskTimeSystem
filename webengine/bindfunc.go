@@ -22,16 +22,17 @@ func Register(uri string, handler func(ctx *gin.Context), method string) {
 }
 
 func JSONOK(c *gin.Context, any interface{}) {
-	c.JSON(http.StatusOK, gin.H{
-		"code": 0,
-		"msg":  "",
-		"data": any,
-	})
+	c.JSON(http.StatusOK, any)
 }
 
 func JSONBadRequest(c *gin.Context, err error) {
 	c.JSON(http.StatusBadRequest, gin.H{
-		"code": 400,
-		"msg":  err.Error(),
+		"msg": err.Error(),
+	})
+}
+
+func JSONSqlFailed(c *gin.Context, err error) {
+	c.JSON(http.StatusInternalServerError, gin.H{
+		"msg": err.Error(),
 	})
 }

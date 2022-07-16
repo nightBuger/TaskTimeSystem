@@ -8,9 +8,7 @@ import (
 
 func main() {
 	fmt.Println("gogogo")
-	//var u service.UserInfoGetRes
-	//Query("select userid,username,guid,secretlevel,email,lxdh from t_userb", &u)
-	//Query("select * from t_userb", &u)
-
+	str := fmt.Sprintf("%s %s", "123", 123)
+	fmt.Println(str)
 	GinInstance.Run()
 }
