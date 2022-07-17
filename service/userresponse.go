@@ -1,19 +1,15 @@
 package service
 
 type UserInfoGetRes struct {
-	Id       string      `json:"id" sql:"userid"`
-	Name     string      `json:"name" sql:"username"`
-	Level    int         `json:"level" sql:"secretlevel"`
-	Email    string      `json:"email" sql:"email"`
-	Phonenum string      `json:"phonenum" sql:"lxdh"`
-	userinfo UserInfoGet `json:"userinfo"`
-	roleid   []string    `json:"roleid" `
+	Id    string `json:"id" sql:"userid"`
+	Name  string `json:"name" sql:"username"`
+	Email string `json:"email" sql:"email"`
+	Tel   string `json:"tel" sql:"tel"`
 }
 
 type UserListGetRes struct {
-	Id       string `json:"id" sql:"userid"`
-	Name     string `json:"name" sql:"username"`
-	Level    int    `json:"level" sql:"secretlevel"`
-	Email    string `json:"email" sql:"email"`
-	Phonenum string `json:"phonenum" sql:"lxdh"`
+	Id    string `json:"id" sql:"userid"`
+	Name  string `json:"name" sql:"username"`
+	Email string `json:"email" sql:"email"`
+	Tel   string `json:"tel" sql:"tel"`
 }

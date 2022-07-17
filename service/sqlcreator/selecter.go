@@ -110,6 +110,6 @@ func (this *Selecter) Create() (sqlstr string, err error) {
 	if this.bFoundRows {
 		sqlstr += fmt.Sprintf(" limit %d,%d;SELECT FOUND_ROWS();", this.limit[0], this.limit[1])
 	}
-
+	webengine.Logger.Debug(sqlstr)
 	return
 }

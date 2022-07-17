@@ -10,5 +10,5 @@ type SqlResultSlice struct {
 	Msg         string      `json:"msg"`
 	ResultSlice interface{} `json:"data"`
 	RowCount    int         `json:"-"`
-	FoundRows   int         `json:"foundrows"`
+	FoundRows   int         `json:"total"`
 }

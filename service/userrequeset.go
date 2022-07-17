@@ -9,3 +9,11 @@ type UserListGet struct {
 	PageNo    int    `json:"pageno" form:"pageno" binding:"required"`
 	PageCount int    `json:"pagecount" form:"pagecount" binding:"required"`
 }
+
+type UserInfoPost struct {
+	Id       string
+	Name     string
+	Password string
+	Tel      string
+	Email    string
+}

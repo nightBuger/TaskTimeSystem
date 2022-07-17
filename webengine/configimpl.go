@@ -32,7 +32,8 @@ func GetDBInfo() (ret struct {
 }
 
 func GetDBInfoString() string {
-	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset='utf8'",
+	//charset='utf8&
+	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset='utf8'&multiStatements=true",
 		GetConfig("DATABASE", "User"),
 		GetConfig("DATABASE", "Pwd"),
 		GetConfig("DATABASE", "Host"),

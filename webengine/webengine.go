@@ -57,6 +57,7 @@ func loggerInit() {
 	})
 	Logger.SetReportCaller(true)
 	Logger.SetOutput(writer)
+	Logger.SetLevel(log.DebugLevel)
 }
 
 func configInit() {

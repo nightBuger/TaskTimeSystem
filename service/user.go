@@ -21,7 +21,7 @@ func GetUserInfo(c *gin.Context) {
 		return
 	}
 	var dr sqlcreator.Selecter
-	dr.Table("t_userb").Select("*").Equal("userid", json.Id)
+	dr.Table("t_user").Select("*").Equal("userid", json.Id)
 	sqlstr, err := dr.Create()
 	if err != nil {
 		webengine.JSONBadRequest(c, err)
@@ -48,18 +48,26 @@ func GetUserList(c *gin.Context) {
 		return
 	}
 	var dr sqlcreator.Selecter
-	dr.Table("t_userb").Select("*")
+	dr.Table("t_user").Select("*")
 	dr.LikeNotEmpty("userid", json.Id).LikeNotEmpty("username", json.Name)
-	//dr.SetPage(json.PageNo, json.PageCount)
+	dr.SetPage(json.PageNo, json.PageCount)
 	sqlstr, err := dr.Create()
 	if err != nil {
 		webengine.JSONBadRequest(c, err)
 		return
 	}
-	res, err := webengine.Query(sqlstr, UserListGetRes{})
+	webengine.Logger.Debug(sqlstr)
+	res, err := webengine.QuerySet(sqlstr, UserListGetRes{})
 	if err != nil {
 		webengine.JSONSqlFailed(c, err)
 		return
 	}
 	webengine.JSONOK(c, res)
+}
+func PostUser(c *gin.Context) {
+	var json UserInfoPost
+	if err := c.ShouldBindJSON(&json); err != nil {
+		webengine.JSONBadRequest(c, err)
+		return
+	}
 }
